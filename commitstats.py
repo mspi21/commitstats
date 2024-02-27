@@ -12,6 +12,9 @@ def parse_args() -> str: #tuple[str, str]:
 
 	return in_file#, out_file
 
+def filter_bots(commit):
+	return not commit['author_name'].endswith('[bot]')
+
 def plot_counts_to_file(iterable, title, outfile):
 	ctr = Counter(iterable)
 
@@ -33,6 +36,10 @@ if __name__ == '__main__':
 	out_file = in_file.removesuffix('.json')
 		
 	df = pd.read_json(in_file)
+
+	# Filter out bots, such as dependabot.
+	bi = df.apply(filter_bots, axis=1)
+	df = df[bi]
 
 	sns.set_theme()
 	plot_counts_to_file(df['author_name'], 'Commit authorship', f'{out_file}_authors.png')
